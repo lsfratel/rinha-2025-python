@@ -1,7 +1,8 @@
 import io
-import json
 from typing import Any
 from urllib.parse import parse_qs
+
+import orjson
 
 
 class Request:
@@ -29,7 +30,7 @@ class Request:
             )
             self.__body__ = {k: v[0] if len(v) == 1 else v for k, v in parsed.items()}
         elif content_type == "application/json":
-            self.__body__ = json.loads(stream.read(content_length).decode())
+            self.__body__ = orjson.loads(stream.read(content_length).decode())
         else:
             raise Exception("Content type not supported.")
 

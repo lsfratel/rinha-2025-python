@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING
+
+import orjson
 
 if TYPE_CHECKING:
     from .request import Request
@@ -15,7 +16,7 @@ def jsonify(body="", status_code=200, headers=None):
     nbody = b""
 
     if body != "":
-        nbody = json.dumps(body).encode()
+        nbody = orjson.dumps(body)
 
     return status_code, nheaders, nbody
 

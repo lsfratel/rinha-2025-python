@@ -11,7 +11,8 @@ dependencies = [
     "redis>=6.2.0",
     "hiredis>=3.2.1",
     "bjoern>=3.2.2",
-    "huey>=2.5.3"
+    "huey>=2.5.3",
+    "orjson>=3.11.1"
 ]
 requires-python = "==3.10.*"
 readme = "README.md"

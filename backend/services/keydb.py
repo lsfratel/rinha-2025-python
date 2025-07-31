@@ -1,6 +1,6 @@
-import json
 import os
 
+import orjson
 from redis import Redis
 
 from ..utils import iso_to_unix
@@ -15,7 +15,7 @@ def store_payments(data: dict, timestamp: float, processor: str):
     key = f"payment:{processor}:{data['correlationId']}"
     pipe = db.pipeline()
 
-    pipe.set(key, json.dumps({"processor": processor, **data}))
+    pipe.set(key, orjson.dumps({"processor": processor, **data}))
     pipe.zadd("payments", {key: timestamp})
 
     pipe.execute()
@@ -35,7 +35,7 @@ def get_payments(from_: str, to: str):
     for k in db.mget(keys):
         if not k:
             continue
-        payment = json.loads(k)
+        payment = orjson.loads(k)
         data[payment["processor"]]["totalAmount"] += payment["amount"]
         data[payment["processor"]]["totalRequests"] += 1
 
