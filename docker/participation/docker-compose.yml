@@ -16,6 +16,10 @@ services:
     networks:
       - default
       - payment-processor
+    healthcheck:
+      test: ["CMD", "keydb-cli", "ping"]
+      interval: 2s
+      retries: 3
 
   worker:
     image: lsfratel/rinha-2025-python:latest
@@ -38,7 +42,8 @@ services:
           cpus: "0.8"
           memory: "100MB"
     depends_on:
-      - keydb
+      keydb:
+        condition: service_healthy
     networks:
       - default
       - payment-processor
@@ -60,10 +65,15 @@ services:
           cpus: "0.15"
           memory: "80MB"
     depends_on:
-      - worker
+      keydb:
+        condition: service_healthy
     networks:
       - default
       - payment-processor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9999/payments-summary"]
+      interval: 2s
+      retries: 3
 
   api02:
     image: lsfratel/rinha-2025-python:latest
@@ -82,10 +92,15 @@ services:
           cpus: "0.15"
           memory: "80MB"
     depends_on:
-      - worker
+      keydb:
+        condition: service_healthy
     networks:
       - default
       - payment-processor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9999/payments-summary"]
+      interval: 2s
+      retries: 3
 
   lighttpd:
     image: jitesoft/lighttpd

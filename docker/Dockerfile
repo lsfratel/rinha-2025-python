@@ -3,7 +3,8 @@ from python:3.10-alpine
 RUN apk add --no-cache \
     build-base         \
     python3-dev        \
-    libev-dev
+    libev-dev          \
+    curl
 
 RUN pip install --upgrade pip
 RUN pip install pdm
