@@ -1,0 +1,35 @@
+[project]
+name = "rinha-2025"
+version = "0.0.1"
+description = "Default template for PDM package"
+authors = [
+    {name = "Lucas Santana", email = "lsfratel@gmail.com"},
+]
+dependencies = [
+    "gevent>=25.5.1",
+    "requests>=2.32.4",
+    "redis>=6.2.0",
+    "hiredis>=3.2.1",
+    "bjoern>=3.2.2",
+    "huey>=2.5.3"
+]
+requires-python = "==3.10.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
+
+
+[tool.pdm.scripts]
+dev.cmd = "gunicorn -b :9999 --reload --access-logfile - -k gevent backend.wsgi:create_app()"
+dev.env_file = ".env"
+
+worker.cmd = "bin/worker.py tasks.payments.huey -k greenlet -w 30"
+worker.env_file = ".env"
+
+[dependency-groups]
+dev = [
+    "gunicorn>=23.0.0",
+]

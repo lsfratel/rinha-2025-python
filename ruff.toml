@@ -1,0 +1,42 @@
+# Habilita a correção automática de erros (se possível).
+fix = true
+
+# Exclui certos arquivos ou diretórios do linting.
+exclude = [
+    ".git",
+    "__pycache__",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".venv",
+]
+
+# Define a linha máxima de comprimento.
+line-length = 88
+
+[format]
+# Habilita a formatação de código usando o Ruff.
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[lint]
+# Adiciona regras de linting específicas.
+select = [
+    "E",  # Erros Pycodestyle
+    "F",  # Erros Pyflakes
+    "W",  # Avisos Pycodestyle
+    "I",  # Ordenação de imports isort
+    "B",  # Avisos flake8-bugbear
+    "C4", # Avisos flake8-comprehensions
+    "UP", # Avisos pyupgrade
+]
+
+# Ignora regras específicas.
+ignore = [
+    "E501", # Ignora erros de comprimento de linha (já que estamos usando o black)
+]
+
+# Configurações específicas para isort.
+[lint.isort]
+known-first-party = ["restcraft", "backend"]
