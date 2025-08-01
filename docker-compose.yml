@@ -1,124 +1,62 @@
 services:
   keydb:
-    container_name: rinha-2025-keydb
     image: eqalpha/keydb
-    command: [
-      "keydb-server",
-      "/etc/keydb/keydb.conf",
-      "--server-threads", "3"
-    ]
+    command: ["keydb-server", "/etc/keydb/keydb.conf", "--server-threads", "3"]
     deploy:
       resources:
         limits:
-          cpus: "0.3"
-          memory: "60MB"
-    ports:
-      - "6379:6379"
+          cpus: "0.30"
+          memory: "100MB"
     networks:
-      - default
+      - payment-processor
+    healthcheck:
+      test: ["CMD", "keydb-cli", "ping"]
+      interval: 5s
+      retries: 3
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["python", "-m", "backend"]
+    environment:
+      - KEYDB_URL=redis://keydb:6379
+      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
+      - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
+    ports:
+      - "9999:9999"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.40"
+          memory: "125MB"
+    depends_on:
+      keydb:
+        condition: service_healthy
+    networks:
       - payment-processor
 
   worker:
-    container_name: rinha-2025-worker
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: [
-      "python", "bin/worker.py",
-      "tasks.payments.huey",
-      "-k", "greenlet",
-      "-w", "30",
-      "-n", "-C",
-      "-q"
-    ]
+    command: ["python", "-m", "worker"]
     environment:
+      - KEYDB_URL=redis://keydb:6379
       - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
       - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
-      - KEYDB_HOST=keydb
-      - KEYDB_PORT=6379
+      - WORKER_POOL_SIZE=250
     deploy:
       resources:
         limits:
-          cpus: "0.8"
-          memory: "100MB"
+          cpus: "0.80"
+          memory: "125MB"
     depends_on:
-      - keydb
-    networks:
-      - default
-      - payment-processor
-
-  api01:
-    container_name: rinha-2025-api-1
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: [
-      "python",
-      "-m", "backend"
-    ]
-    environment:
-      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
-      - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
-      - KEYDB_HOST=keydb
-      - KEYDB_PORT=6379
-    deploy:
-      resources:
-        limits:
-          cpus: "0.15"
-          memory: "80MB"
-    depends_on:
-      - worker
-    networks:
-      - default
-      - payment-processor
-
-  api02:
-    container_name: rinha-2025-api-2
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: [
-      "python",
-      "-m", "backend"
-    ]
-    environment:
-      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
-      - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
-      - KEYDB_HOST=keydb
-      - KEYDB_PORT=6379
-    deploy:
-      resources:
-        limits:
-          cpus: "0.15"
-          memory: "80MB"
-    depends_on:
-      - worker
-    networks:
-      - default
-      - payment-processor
-
-  lighttpd:
-    image: jitesoft/lighttpd
-    volumes:
-      - ./docker/lighttpd.conf:/etc/lighttpd/lighttpd.conf
-    ports:
-      - "9999:9999"
-    depends_on:
-      api01:
+      keydb:
         condition: service_healthy
-      api02:
-        condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          cpus: '0.10'
-          memory: '30MB'
     networks:
-      - default
       - payment-processor
 
 networks:
-  default:
-    driver: bridge
   payment-processor:
     external: true

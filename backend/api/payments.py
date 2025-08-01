@@ -1,8 +1,7 @@
 from restcraft.http import Request, jsonify
 from restcraft.views import View
-from tasks.payments import process_payment
 
-from ..services import keydb
+from ..services import payment
 from .serializers import CreatePaymentsSerializer, FilterPaymentsSerializer
 
 
@@ -11,7 +10,7 @@ class PaymentsView(View):
 
     def post(self, _: Request):
         data, *_ = self.validated_data(True)
-        process_payment(data)
+        payment.enqueue_payment(data)
 
         return jsonify(status_code=202)
 
@@ -21,13 +20,13 @@ class PaymentsSummaryView(View):
 
     def get(self, _: Request):
         data, *_ = self.validated_data(True)
-        payments = keydb.get_payments(data["from_"], data["to"])
+        payments = payment.get_payments(data["from_"], data["to"])
 
         return jsonify(payments, status_code=200)
 
 
 class PaymentsPurgeView(View):
     def post(self, _: Request):
-        keydb.purge_payments()
+        payment.purge_payments()
 
         return jsonify(status_code=200)

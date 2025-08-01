@@ -6,7 +6,6 @@ This repository contains my submission for the Rinha de Backend 2025.
 
 * **Language:** Python
 * **Storage:** Keydb
-* **Load Balancer:** Lighttpd
 * **Containerization:** Docker
 
 ## Source code

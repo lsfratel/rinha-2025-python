@@ -4,7 +4,7 @@
     "source-code-repo": "https://github.com/lsfratel/rinha-2025-python",
     "langs": ["python"],
     "storages": ["keydb"],
-    "messaging": ["huey"],
-    "load-balancers": ["lighttpd"],
+    "messaging": ["keydb"],
+    "load-balancers": [],
     "other-technologies": []
 }

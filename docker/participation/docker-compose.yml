@@ -1,18 +1,12 @@
 services:
   keydb:
     image: eqalpha/keydb
-    command: [
-      "keydb-server",
-      "/etc/keydb/keydb.conf",
-      "--server-threads", "3"
-    ]
+    command: ["keydb-server", "/etc/keydb/keydb.conf", "--server-threads", "3"]
     deploy:
       resources:
         limits:
-          cpus: "0.15"
-          memory: "60MB"
-    ports:
-      - "6379:6379"
+          cpus: "0.30"
+          memory: "100MB"
     networks:
       - payment-processor
     healthcheck:
@@ -20,102 +14,44 @@ services:
       interval: 5s
       retries: 3
 
-  worker:
-    image: lsfratel/rinha-2025-python:4
-    command: [
-      "python", "bin/worker.py",
-      "tasks.payments.huey",
-      "-k", "greenlet",
-      "-w", "100",
-      "-n", "-C",
-      "-S"
-    ]
+  backend:
+    image: lsfratel/rinha-2025-python:5
+    command: ["python", "-m", "backend"]
     environment:
+      - KEYDB_URL=redis://keydb:6379
       - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
       - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
-      - KEYDB_HOST=keydb
-      - KEYDB_PORT=6379
-    deploy:
-      resources:
-        limits:
-          cpus: "1.05"
-          memory: "100MB"
-    depends_on:
-      keydb:
-        condition: service_healthy
-    networks:
-      - payment-processor
-
-  api01:
-    image: lsfratel/rinha-2025-python:4
-    command: [
-      "python",
-      "-m", "backend"
-    ]
-    environment:
-      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
-      - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
-      - KEYDB_HOST=keydb
-      - KEYDB_PORT=6379
-    deploy:
-      resources:
-        limits:
-          cpus: "0.10"
-          memory: "80MB"
-    depends_on:
-      keydb:
-        condition: service_healthy
-    networks:
-      - payment-processor
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://api01:9999/payments-summary"]
-      interval: 5s
-      retries: 3
-
-  api02:
-    image: lsfratel/rinha-2025-python:4
-    command: [
-      "python",
-      "-m", "backend"
-    ]
-    environment:
-      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
-      - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
-      - KEYDB_HOST=keydb
-      - KEYDB_PORT=6379
-    deploy:
-      resources:
-        limits:
-          cpus: "0.10"
-          memory: "80MB"
-    depends_on:
-      keydb:
-        condition: service_healthy
-    networks:
-      - payment-processor
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://api02:9999/payments-summary"]
-      interval: 5s
-      retries: 3
-
-  lighttpd:
-    image: jitesoft/lighttpd
-    volumes:
-      - ./lighttpd.conf:/etc/lighttpd/lighttpd.conf:ro
     ports:
       - "9999:9999"
-    depends_on:
-      api01:
-        condition: service_healthy
-      api02:
-        condition: service_healthy
-    networks:
-      - payment-processor
     deploy:
       resources:
         limits:
-          cpus: '0.10'
-          memory: '30MB'
+          cpus: "0.40"
+          memory: "125MB"
+    depends_on:
+      keydb:
+        condition: service_healthy
+    networks:
+      - payment-processor
+
+  worker:
+    image: lsfratel/rinha-2025-python:5
+    command: ["python", "-m", "worker"]
+    environment:
+      - KEYDB_URL=redis://keydb:6379
+      - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
+      - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
+      - WORKER_POOL_SIZE=1000
+    deploy:
+      resources:
+        limits:
+          cpus: "0.80"
+          memory: "125MB"
+    depends_on:
+      keydb:
+        condition: service_healthy
+    networks:
+      - payment-processor
 
 networks:
   payment-processor:

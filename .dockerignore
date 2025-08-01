@@ -5,6 +5,7 @@ __pycache__/
 .ruff_cache/
 .pdm-python
 .env
+.env.copy
 .venv
 docker
 .pdm-python

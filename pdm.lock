@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:86928af56f0ea94fb7bf2dabe0b6cafefc31052cec3f38b32753b53c85a5f750"
+content_hash = "sha256:4217cd1c731ecbc816ccd91b43c0f56a3f333abeee5217641aaf4453f22697bc"
 
 [[metadata.targets]]
 requires_python = "==3.10.*"
@@ -153,46 +153,6 @@ files = [
 ]
 
 [[package]]
-name = "hiredis"
-version = "3.2.1"
-requires_python = ">=3.8"
-summary = "Python wrapper for hiredis"
-groups = ["default"]
-files = [
-    {file = "hiredis-3.2.1-cp310-cp310-macosx_10_15_universal2.whl", hash = "sha256:add17efcbae46c5a6a13b244ff0b4a8fa079602ceb62290095c941b42e9d5dec"},
-    {file = "hiredis-3.2.1-cp310-cp310-macosx_10_15_x86_64.whl", hash = "sha256:5fe955cc4f66c57df1ae8e5caf4de2925d43b5efab4e40859662311d1bcc5f54"},
-    {file = "hiredis-3.2.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:f9ad63cd9065820a43fb1efb8ed5ae85bb78f03ef5eb53f6bde47914708f5718"},
-    {file = "hiredis-3.2.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d8e7f9e5fdba08841d78d4e1450cae03a4dbed2eda8a4084673cafa5615ce24a"},
-    {file = "hiredis-3.2.1-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:1dce2508eca5d4e47ef38bc7c0724cb45abcdb0089f95a2ef49baf52882979a8"},
-    {file = "hiredis-3.2.1-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:186428bf353e4819abae15aa2ad64c3f40499d596ede280fe328abb9e98e72ce"},
-    {file = "hiredis-3.2.1-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:74f2500d90a0494843aba7abcdc3e77f859c502e0892112d708c02e1dcae8f90"},
-    {file = "hiredis-3.2.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:32822a94d2fdd1da96c05b22fdeef6d145d8fdbd865ba2f273f45eb949e4a805"},
-    {file = "hiredis-3.2.1-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:ead809fb08dd4fdb5b4b6e2999c834e78c3b0c450a07c3ed88983964432d0c64"},
-    {file = "hiredis-3.2.1-cp310-cp310-musllinux_1_2_i686.whl", hash = "sha256:b90fada20301c3a257e868dd6a4694febc089b2b6d893fa96a3fc6c1f9ab4340"},
-    {file = "hiredis-3.2.1-cp310-cp310-musllinux_1_2_ppc64le.whl", hash = "sha256:6d8bff53f526da3d9db86c8668011e4f7ca2958ee3a46c648edab6fe2cd1e709"},
-    {file = "hiredis-3.2.1-cp310-cp310-musllinux_1_2_s390x.whl", hash = "sha256:043d929ae262d03e1db0f08616e14504a9119c1ff3de13d66f857d85cd45caff"},
-    {file = "hiredis-3.2.1-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:8d470fef39d02dbe5c541ec345cc4ffd7d2baec7d6e59c92bd9d9545dc221829"},
-    {file = "hiredis-3.2.1-cp310-cp310-win32.whl", hash = "sha256:efa4c76c45cc8c42228c7989b279fa974580e053b5e6a4a834098b5324b9eafa"},
-    {file = "hiredis-3.2.1-cp310-cp310-win_amd64.whl", hash = "sha256:cbac5ec3a620b095c46ef3a8f1f06da9c86c1cdc411d44a5f538876c39a2b321"},
-    {file = "hiredis-3.2.1-pp310-pypy310_pp73-macosx_10_15_x86_64.whl", hash = "sha256:73913d2fa379e722d17ba52f21ce12dd578140941a08efd73e73b6fab1dea4d8"},
-    {file = "hiredis-3.2.1-pp310-pypy310_pp73-macosx_11_0_arm64.whl", hash = "sha256:15a3dff3eca31ecbf3d7d6d104cf1b318dc2b013bad3f4bdb2839cb9ea2e1584"},
-    {file = "hiredis-3.2.1-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c78258032c2f9fc6f39fee7b07882ce26de281e09178266ce535992572132d95"},
-    {file = "hiredis-3.2.1-pp310-pypy310_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:578d6a881e64e46db065256355594e680202c3bacf3270be3140057171d2c23e"},
-    {file = "hiredis-3.2.1-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8b7f34b170093c077c972b8cc0ceb15d8ff88ad0079751a8ae9733e94d77e733"},
-    {file = "hiredis-3.2.1-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:291a18b228fc90f6720d178de2fac46522082c96330b4cc2d3dd8cb2c1cb2815"},
-    {file = "hiredis-3.2.1.tar.gz", hash = "sha256:5a5f64479bf04dd829fe7029fad0ea043eac4023abc6e946668cbbec3493a78d"},
-]
-
-[[package]]
-name = "huey"
-version = "2.5.3"
-summary = "huey, a little task queue"
-groups = ["default"]
-files = [
-    {file = "huey-2.5.3.tar.gz", hash = "sha256:089fc72b97fd26a513f15b09925c56fad6abe4a699a1f0e902170b37e85163c7"},
-]
-
-[[package]]
 name = "idna"
 version = "3.10"
 requires_python = ">=3.6"
@@ -201,6 +161,26 @@ groups = ["default"]
 files = [
     {file = "idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3"},
     {file = "idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9"},
+]
+
+[[package]]
+name = "msgpack"
+version = "1.1.1"
+requires_python = ">=3.8"
+summary = "MessagePack serializer"
+groups = ["default"]
+files = [
+    {file = "msgpack-1.1.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:353b6fc0c36fde68b661a12949d7d49f8f51ff5fa019c1e47c87c4ff34b080ed"},
+    {file = "msgpack-1.1.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:79c408fcf76a958491b4e3b103d1c417044544b68e96d06432a189b43d1215c8"},
+    {file = "msgpack-1.1.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:78426096939c2c7482bf31ef15ca219a9e24460289c00dd0b94411040bb73ad2"},
+    {file = "msgpack-1.1.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8b17ba27727a36cb73aabacaa44b13090feb88a01d012c0f4be70c00f75048b4"},
+    {file = "msgpack-1.1.1-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:7a17ac1ea6ec3c7687d70201cfda3b1e8061466f28f686c24f627cae4ea8efd0"},
+    {file = "msgpack-1.1.1-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:88d1e966c9235c1d4e2afac21ca83933ba59537e2e2727a999bf3f515ca2af26"},
+    {file = "msgpack-1.1.1-cp310-cp310-musllinux_1_2_i686.whl", hash = "sha256:f6d58656842e1b2ddbe07f43f56b10a60f2ba5826164910968f5933e5178af75"},
+    {file = "msgpack-1.1.1-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:96decdfc4adcbc087f5ea7ebdcfd3dee9a13358cae6e81d54be962efc38f6338"},
+    {file = "msgpack-1.1.1-cp310-cp310-win32.whl", hash = "sha256:6640fd979ca9a212e4bcdf6eb74051ade2c690b862b679bfcb60ae46e6dc4bfd"},
+    {file = "msgpack-1.1.1-cp310-cp310-win_amd64.whl", hash = "sha256:8b65b53204fe1bd037c40c4148d00ef918eb2108d24c9aaa20bc31f9810ce0a8"},
+    {file = "msgpack-1.1.1.tar.gz", hash = "sha256:77b79ce34a2bdab2594f490c8e80dd62a02d650b91a75159a63ec413b8d104cd"},
 ]
 
 [[package]]

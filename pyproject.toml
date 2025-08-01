@@ -1,5 +1,5 @@
 [project]
-name = "rinha-2025"
+name = "rinha-2025-python"
 version = "0.0.1"
 description = "Default template for PDM package"
 authors = [
@@ -9,10 +9,9 @@ dependencies = [
     "gevent>=25.5.1",
     "requests>=2.32.4",
     "redis>=6.2.0",
-    "hiredis>=3.2.1",
     "bjoern>=3.2.2",
-    "huey>=2.5.3",
-    "orjson>=3.11.1"
+    "orjson>=3.11.1",
+    "msgpack>=1.1.1",
 ]
 requires-python = "==3.10.*"
 readme = "README.md"
@@ -27,7 +26,7 @@ distribution = false
 dev.cmd = "gunicorn -b :9999 --reload --access-logfile - -k gevent backend.wsgi:create_app()"
 dev.env_file = ".env"
 
-worker.cmd = "bin/worker.py tasks.payments.huey -k greenlet -w 30"
+worker.cmd = "python -m worker"
 worker.env_file = ".env"
 
 [dependency-groups]
