@@ -1,16 +1,21 @@
-from python:3.10-alpine
+FROM python:3.10-alpine
 
-RUN apk add --no-cache \
-    build-base         \
-    python3-dev        \
-    libev-dev          \
-    curl
+ENV PYTHONUNBUFFERED=1
 
-RUN pip install --upgrade pip
-RUN pip install pdm
+RUN apk add --no-cache --virtual .build-deps \
+    build-base \
+    libev-dev
+
+RUN apk add --no-cache libev curl
+
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir pdm
 
 WORKDIR /app
 COPY . .
 
-RUN pdm install --prod
+RUN pdm install --prod && \
+    apk del .build-deps && \
+    rm -rf /root/.cache/pip
+
 ENV PATH="/app/.venv/bin:$PATH"

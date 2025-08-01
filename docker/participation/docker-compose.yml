@@ -9,27 +9,26 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.3"
+          cpus: "0.15"
           memory: "60MB"
     ports:
       - "6379:6379"
     networks:
-      - default
       - payment-processor
     healthcheck:
       test: ["CMD", "keydb-cli", "ping"]
-      interval: 2s
+      interval: 5s
       retries: 3
 
   worker:
-    image: lsfratel/rinha-2025-python:latest
+    image: lsfratel/rinha-2025-python:4
     command: [
       "python", "bin/worker.py",
       "tasks.payments.huey",
       "-k", "greenlet",
-      "-w", "30",
+      "-w", "100",
       "-n", "-C",
-      "-q"
+      "-S"
     ]
     environment:
       - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
@@ -39,17 +38,16 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.8"
+          cpus: "1.05"
           memory: "100MB"
     depends_on:
       keydb:
         condition: service_healthy
     networks:
-      - default
       - payment-processor
 
   api01:
-    image: lsfratel/rinha-2025-python:latest
+    image: lsfratel/rinha-2025-python:4
     command: [
       "python",
       "-m", "backend"
@@ -62,21 +60,20 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.15"
+          cpus: "0.10"
           memory: "80MB"
     depends_on:
       keydb:
         condition: service_healthy
     networks:
-      - default
       - payment-processor
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9999/payments-summary"]
-      interval: 2s
+      test: ["CMD", "curl", "-f", "http://api01:9999/payments-summary"]
+      interval: 5s
       retries: 3
 
   api02:
-    image: lsfratel/rinha-2025-python:latest
+    image: lsfratel/rinha-2025-python:4
     command: [
       "python",
       "-m", "backend"
@@ -89,17 +86,16 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.15"
+          cpus: "0.10"
           memory: "80MB"
     depends_on:
       keydb:
         condition: service_healthy
     networks:
-      - default
       - payment-processor
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9999/payments-summary"]
-      interval: 2s
+      test: ["CMD", "curl", "-f", "http://api02:9999/payments-summary"]
+      interval: 5s
       retries: 3
 
   lighttpd:
@@ -113,17 +109,14 @@ services:
         condition: service_healthy
       api02:
         condition: service_healthy
+    networks:
+      - payment-processor
     deploy:
       resources:
         limits:
           cpus: '0.10'
           memory: '30MB'
-    networks:
-      - default
-      - payment-processor
 
 networks:
-  default:
-    driver: bridge
   payment-processor:
     external: true
