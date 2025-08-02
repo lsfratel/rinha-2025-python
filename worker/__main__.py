@@ -8,6 +8,7 @@ import msgpack
 import requests
 from gevent.lock import Semaphore
 from gevent.pool import Pool
+from requests.adapters import HTTPAdapter
 
 from backend.keydb import keydb
 
@@ -15,12 +16,10 @@ PROCESSORS = {
     "default": {
         "health": True,
         "url": os.getenv("DEFAULT_PAYMENT_URL", "http://localhost:8001"),
-        "session": requests.Session(),
     },
     "fallback": {
         "health": True,
         "url": os.getenv("FALLBAK_PAYMENT_URL", "http://localhost:8002"),
-        "session": requests.Session(),
     },
 }
 
@@ -28,8 +27,20 @@ HEALTH_CHECK_INTERVAL = 5
 last_health_check = 0
 health_lock = Semaphore()
 pool = Pool(size=int(os.getenv("WORKER_POOL_SIZE", "250")))
-
 running = True
+
+
+def create_sessions():
+    for processor in PROCESSORS.values():
+        session = requests.Session()
+        adapter = HTTPAdapter(
+            pool_connections=int(os.getenv("HTTP_POOL_CONNECTIONS", "20")),
+            pool_maxsize=int(os.getenv("HTTP_POOL_MAXSIZE", "100")),
+            max_retries=0,
+        )
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        processor["session"] = session
 
 
 def get_health(processor: str) -> bool:
@@ -51,7 +62,7 @@ def check_health(now: float = None):
 
     tasks = {
         name: gevent.spawn(
-            info['session'].get,
+            info["session"].get,
             f"{info['url']}/payments/service-health",
         )
         for name, info in PROCESSORS.items()
@@ -87,7 +98,13 @@ def store_payment(payment: dict, processor: str, timestamp: float):
     key = f"payment:{processor}:{payment['correlationId']}"
     pipe = keydb.pipeline()
 
-    pipe.set(key, msgpack.packb({"processor": processor, **payment}, use_bin_type=True,),)
+    pipe.set(
+        key,
+        msgpack.packb(
+            {"processor": processor, **payment},
+            use_bin_type=True,
+        ),
+    )
     pipe.zadd("payments", {key: timestamp})
 
     pipe.execute()
@@ -152,6 +169,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, handle_sigterm)
 
     try:
+        create_sessions()
         worker_loop()
     except KeyboardInterrupt:
         pass
