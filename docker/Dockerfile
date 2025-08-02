@@ -6,7 +6,7 @@ RUN apk add --no-cache --virtual .build-deps \
     build-base \
     libev-dev
 
-RUN apk add --no-cache libev curl
+RUN apk add --no-cache libev netcat-openbsd
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir pdm

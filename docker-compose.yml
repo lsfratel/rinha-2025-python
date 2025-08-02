@@ -22,6 +22,9 @@ services:
     command: ["python", "-m", "backend"]
     environment:
       - KEYDB_URL=redis://keydb:6379
+      - UNIX_SOCKET=/sockets/backend1.sock
+    volumes:
+      - sockets:/sockets:rw
     deploy:
       resources:
         limits:
@@ -34,7 +37,7 @@ services:
       - default
       - payment-processor
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://backend1:9999/payments-summary"]
+      test: ["CMD", "nc", "-zU", "/sockets/backend1.sock"]
       interval: 5s
       retries: 3
 
@@ -45,6 +48,9 @@ services:
     command: ["python", "-m", "backend"]
     environment:
       - KEYDB_URL=redis://keydb:6379
+      - UNIX_SOCKET=/sockets/backend2.sock
+    volumes:
+      - sockets:/sockets:rw
     deploy:
       resources:
         limits:
@@ -57,7 +63,7 @@ services:
       - default
       - payment-processor
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://backend2:9999/payments-summary"]
+      test: ["CMD", "nc", "-zU", "/sockets/backend2.sock"]
       interval: 5s
       retries: 3
 
@@ -70,13 +76,13 @@ services:
       - KEYDB_URL=redis://keydb:6379
       - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
       - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
-      - NUM_WORKERS=15
-      - BACKOFF_FACTOR=0.3
-      - NUM_OF_RETRY=6
+      - NUM_WORKERS=50
+      - BACKOFF_FACTOR=0.2
+      - NUM_OF_RETRY=7
     deploy:
       resources:
         limits:
-          cpus: "0.55"
+          cpus: "0.60"
           memory: "120MB"
     depends_on:
       keydb:
@@ -89,6 +95,7 @@ services:
     image: jitesoft/lighttpd
     volumes:
       - ./docker/participation/lighttpd.conf:/etc/lighttpd/lighttpd.conf:ro
+      - sockets:/sockets:rw
     ports:
       - "9999:9999"
     depends_on:
@@ -102,8 +109,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.15"
+          cpus: "0.10"
           memory: "40MB"
+
+volumes:
+  sockets:
 
 networks:
   default:
