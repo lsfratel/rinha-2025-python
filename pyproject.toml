@@ -13,7 +13,7 @@ dependencies = [
     "orjson>=3.11.1",
     "msgpack>=1.1.1",
 ]
-requires-python = "==3.10.*"
+requires-python = "==3.11.*"
 readme = "README.md"
 license = {text = "MIT"}
 
@@ -28,6 +28,8 @@ dev.env_file = ".env"
 
 worker.cmd = "python -m worker"
 worker.env_file = ".env"
+
+clean = "find . -type d -name __pycache__ -exec rm -rf {} +"
 
 [dependency-groups]
 dev = [
