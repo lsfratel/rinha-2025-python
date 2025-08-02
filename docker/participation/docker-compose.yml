@@ -64,7 +64,7 @@ services:
       - KEYDB_URL=redis://keydb:6379
       - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
       - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
-      - NUM_WORKERS=15
+      - NUM_WORKERS=25
       - BACKOFF_FACTOR=0.3
       - NUM_OF_RETRY=6
     deploy:
