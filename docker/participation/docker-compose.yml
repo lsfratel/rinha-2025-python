@@ -16,7 +16,7 @@ services:
       retries: 3
 
   backend1:
-    image: lsfratel/rinha-2025-python:7
+    image: lsfratel/rinha-2025-python:8
     command: ["python", "-m", "backend"]
     environment:
       - KEYDB_URL=redis://keydb:6379
@@ -40,7 +40,7 @@ services:
       retries: 3
 
   backend2:
-    image: lsfratel/rinha-2025-python:7
+    image: lsfratel/rinha-2025-python:8
     command: ["python", "-m", "backend"]
     environment:
       - KEYDB_URL=redis://keydb:6379
@@ -64,15 +64,13 @@ services:
       retries: 3
 
   worker:
-    image: lsfratel/rinha-2025-python:7
+    image: lsfratel/rinha-2025-python:8
     command: ["python", "-m", "worker"]
     environment:
       - KEYDB_URL=redis://keydb:6379
       - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
-      - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
+      - FALLBACK_PAYMENT_URL=http://payment-processor-fallback:8080
       - NUM_WORKERS=50
-      - BACKOFF_FACTOR=0.2
-      - NUM_OF_RETRY=7
     deploy:
       resources:
         limits:

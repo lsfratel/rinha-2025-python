@@ -75,10 +75,8 @@ services:
     environment:
       - KEYDB_URL=redis://keydb:6379
       - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
-      - FALLBAK_PAYMENT_URL=http://payment-processor-fallback:8080
+      - FALLBACK_PAYMENT_URL=http://payment-processor-fallback:8080
       - NUM_WORKERS=50
-      - BACKOFF_FACTOR=0.2
-      - NUM_OF_RETRY=7
     deploy:
       resources:
         limits:

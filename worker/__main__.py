@@ -1,12 +1,11 @@
 import traceback
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import gevent
 import msgpack
 import redis
 import requests
 from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 from .confg import Config
 
@@ -17,17 +16,16 @@ redis = redis.StrictRedis(
     ),
 )
 
+processors = (
+    ("default", Config.DEFAULT_PAYMENT_URL),
+    ("fallback", Config.FALLBACK_PAYMENT_URL),
+)
+
 
 def get_sesstion():
     adapter = HTTPAdapter(
         pool_connections=Config.NUM_WORKERS,
         pool_maxsize=Config.NUM_WORKERS,
-        max_retries=Retry(
-            total=Config.NUM_OF_RETRY,
-            backoff_factor=Config.BACKOFF_FACTOR,
-            allowed_methods={"POST"},
-            status_forcelist={500},
-        ),
     )
     session = requests.Session()
     session.mount("https://", adapter)
@@ -50,18 +48,19 @@ def store_payment(payment: dict, processor: str, timestamp: float):
 
 
 def process_payment(payment: dict, session: requests.Session):
-    requested_at = datetime.now(timezone.utc)
+    requested_at = datetime.now(UTC)
     timestamp = requested_at.timestamp()
     payload = {
         **payment,
         "requestedAt": requested_at.isoformat(),
     }
-    resp = session.post(
-        f"{Config.DEFAULT_PAYMENT_URL}/payments",
-        json=payload,
-    )
-    resp.raise_for_status()
-    store_payment(payment, "default", timestamp)
+    for processor, url in processors:
+        resp = session.post(f"{url}/payments", json=payload)
+        if resp.status_code == 200:
+            store_payment(payment, processor, timestamp)
+            return
+    gevent.sleep(0.5)
+    process_payment(payment, session)
 
 
 def worker():
