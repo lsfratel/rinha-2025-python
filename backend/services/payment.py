@@ -5,26 +5,25 @@ from ..utils import iso_to_unix
 
 
 def get_payments(from_: str, to: str):
-    keys = keydb.zrangebyscore("payments", min=iso_to_unix(from_), max=iso_to_unix(to))
+    members = keydb.zrangebyscore("payments", iso_to_unix(from_), iso_to_unix(to))
     data = {
         "default": {"totalRequests": 0, "totalAmount": 0},
         "fallback": {"totalRequests": 0, "totalAmount": 0},
     }
-    if not keys:
-        return data
-    for k in keydb.mget(keys):
-        if not k:
-            continue
-        payment = msgpack.unpackb(k, raw=False)
-        data[payment["processor"]]["totalAmount"] += payment["amount"]
-        data[payment["processor"]]["totalRequests"] += 1
-    data["default"]["totalAmount"] = round(data["default"]["totalAmount"], 2)
-    data["fallback"]["totalAmount"] = round(data["fallback"]["totalAmount"], 2)
+    for m in members:
+        proc, amount, _ = m.decode().split(":", 2)  # separa só os dois primeiros
+        data[proc]["totalRequests"] += 1
+        data[proc]["totalAmount"] += float(amount)
+    for k in data:
+        data[k]["totalAmount"] = round(data[k]["totalAmount"], 2)
     return data
 
 
 def enqueue_payment(payment: dict):
-    keydb.rpush("queue:payments", msgpack.packb(payment, use_bin_type=True))
+    keydb.rpush(
+        "queue:payments",
+        msgpack.packb(payment, use_bin_type=True),
+    )
 
 
 def purge_payments():

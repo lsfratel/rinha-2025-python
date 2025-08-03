@@ -8,10 +8,10 @@ authors = [
 dependencies = [
     "gevent>=25.5.1",
     "requests>=2.32.4",
-    "redis>=6.2.0",
     "bjoern>=3.2.2",
     "orjson>=3.11.1",
     "msgpack>=1.1.1",
+    "redis[hiredis]>=6.2.0",
 ]
 requires-python = "==3.11.*"
 readme = "README.md"

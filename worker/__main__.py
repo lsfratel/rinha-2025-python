@@ -3,17 +3,18 @@ from datetime import UTC, datetime
 
 import gevent
 import msgpack
-import redis
 import requests
+from redis import ConnectionPool, StrictRedis
 from requests.adapters import HTTPAdapter
 
 from .confg import Config
 
-redis = redis.StrictRedis(
-    connection_pool=redis.ConnectionPool.from_url(
+keydb = StrictRedis(
+    connection_pool=ConnectionPool.from_url(
         Config.KEYDB_URL,
         max_connections=Config.NUM_WORKERS,
     ),
+    protocol=3,
 )
 
 processors = (
@@ -34,17 +35,8 @@ def get_sesstion():
 
 
 def store_payment(payment: dict, processor: str, timestamp: float):
-    key = f"payment:{processor}:{payment['correlationId']}"
-    pipe = redis.pipeline(transaction=False)
-    pipe.set(
-        key,
-        msgpack.packb(
-            {"processor": processor, **payment},
-            use_bin_type=True,
-        ),
-    )
-    pipe.zadd("payments", {key: timestamp})
-    pipe.execute()
+    member = f"{processor}:{payment['amount']}:{payment['correlationId']}"
+    keydb.zadd("payments", {member: timestamp})
 
 
 def process_payment(payment: dict, session: requests.Session):
@@ -55,11 +47,14 @@ def process_payment(payment: dict, session: requests.Session):
         "requestedAt": requested_at.isoformat(),
     }
     for processor, url in processors:
-        resp = session.post(f"{url}/payments", json=payload)
+        resp = session.post(
+            f"{url}/payments",
+            json=payload,
+        )
         if resp.status_code == 200:
             store_payment(payment, processor, timestamp)
             return
-    gevent.sleep(0.5)
+    gevent.sleep(0.05)
     process_payment(payment, session)
 
 
@@ -67,7 +62,7 @@ def worker():
     session = get_sesstion()
     while True:
         try:
-            _, payment_data = redis.brpop("queue:payments", timeout=0)
+            _, payment_data = keydb.brpop("queue:payments", timeout=0)
             payment = msgpack.unpackb(payment_data, raw=False)
             process_payment(payment, session)
         except requests.HTTPError:

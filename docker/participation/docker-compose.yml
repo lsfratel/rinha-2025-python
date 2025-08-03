@@ -16,7 +16,7 @@ services:
       retries: 3
 
   backend1:
-    image: lsfratel/rinha-2025-python:8
+    image: lsfratel/rinha-2025-python:9
     command: ["python", "-m", "backend"]
     environment:
       - KEYDB_URL=redis://keydb:6379
@@ -40,7 +40,7 @@ services:
       retries: 3
 
   backend2:
-    image: lsfratel/rinha-2025-python:8
+    image: lsfratel/rinha-2025-python:9
     command: ["python", "-m", "backend"]
     environment:
       - KEYDB_URL=redis://keydb:6379
@@ -64,7 +64,7 @@ services:
       retries: 3
 
   worker:
-    image: lsfratel/rinha-2025-python:8
+    image: lsfratel/rinha-2025-python:9
     command: ["python", "-m", "worker"]
     environment:
       - KEYDB_URL=redis://keydb:6379

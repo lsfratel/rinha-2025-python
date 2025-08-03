@@ -12,10 +12,13 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir pdm
 
 WORKDIR /app
-COPY . .
+
+COPY pyproject.toml pdm.lock .
 
 RUN pdm install --prod && \
     apk del .build-deps && \
     rm -rf /root/.cache/pip
+
+COPY . .
 
 ENV PATH="/app/.venv/bin:$PATH"
