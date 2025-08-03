@@ -1,7 +1,16 @@
 services:
   keydb:
     image: eqalpha/keydb
-    command: ["keydb-server", "/etc/keydb/keydb.conf", "--server-threads", "3"]
+    entrypoint: |
+      sh -c 'mkdir -p /sockets && chmod 777 /sockets && exec docker-entrypoint.sh $$@'
+    command: [
+      "keydb-server", "/etc/keydb/keydb.conf",
+      "--server-threads", "3",
+      "--unixsocket", "/sockets/keydb.sock",
+      "--unixsocketperm", "777"
+    ]
+    volumes:
+      - sockets:/sockets:rw
     deploy:
       resources:
         limits:
@@ -11,7 +20,7 @@ services:
       - default
       - payment-processor
     healthcheck:
-      test: ["CMD", "keydb-cli", "ping"]
+      test: ["CMD", "keydb-cli", "-s", "/sockets/keydb.sock", "ping"]
       interval: 5s
       retries: 3
 
@@ -21,7 +30,7 @@ services:
       dockerfile: docker/Dockerfile
     command: ["python", "-m", "backend"]
     environment:
-      - KEYDB_URL=redis://keydb:6379
+      - KEYDB_URL=unix:/sockets/keydb.sock
       - UNIX_SOCKET=/sockets/backend1.sock
     volumes:
       - sockets:/sockets:rw
@@ -47,7 +56,7 @@ services:
       dockerfile: docker/Dockerfile
     command: ["python", "-m", "backend"]
     environment:
-      - KEYDB_URL=redis://keydb:6379
+      - KEYDB_URL=unix:/sockets/keydb.sock
       - UNIX_SOCKET=/sockets/backend2.sock
     volumes:
       - sockets:/sockets:rw
@@ -73,10 +82,12 @@ services:
       dockerfile: docker/Dockerfile
     command: ["python", "-m", "worker"]
     environment:
-      - KEYDB_URL=redis://keydb:6379
+      - KEYDB_URL=unix:/sockets/keydb.sock
       - DEFAULT_PAYMENT_URL=http://payment-processor-default:8080
       - FALLBACK_PAYMENT_URL=http://payment-processor-fallback:8080
       - NUM_WORKERS=50
+    volumes:
+      - sockets:/sockets:rw
     deploy:
       resources:
         limits:

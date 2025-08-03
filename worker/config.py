@@ -16,5 +16,3 @@ class Config:
     KEYDB_URL = env("KEYDB_URL", "redis://localhost")
 
     NUM_WORKERS = env("NUM_WORKERS", "30", int)
-    BACKOFF_FACTOR = env("BACKOFF_FACTOR", "0.3", float)
-    NUM_OF_RETRY = env("NUM_OF_RETRY", "6", int)

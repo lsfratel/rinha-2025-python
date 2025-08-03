@@ -4,18 +4,10 @@ from datetime import UTC, datetime
 import gevent
 import msgpack
 import requests
-from redis import ConnectionPool, StrictRedis
 from requests.adapters import HTTPAdapter
 
-from .confg import Config
-
-keydb = StrictRedis(
-    connection_pool=ConnectionPool.from_url(
-        Config.KEYDB_URL,
-        max_connections=Config.NUM_WORKERS,
-    ),
-    protocol=3,
-)
+from .config import Config
+from .keydb import keydb
 
 processors = (
     ("default", Config.DEFAULT_PAYMENT_URL),
