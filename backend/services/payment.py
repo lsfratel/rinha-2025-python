@@ -11,7 +11,7 @@ def get_payments(from_: str, to: str):
         "fallback": {"totalRequests": 0, "totalAmount": 0},
     }
     for m in members:
-        proc, amount, _ = m.decode().split(":", 2)  # separa só os dois primeiros
+        proc, amount, _ = m.decode().split(":", 2)
         data[proc]["totalRequests"] += 1
         data[proc]["totalAmount"] += float(amount)
     for k in data:

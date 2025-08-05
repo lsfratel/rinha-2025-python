@@ -1,23 +1,19 @@
-from __future__ import annotations
+from .request import Request
 
-from typing import TYPE_CHECKING
-
-import orjson
-
-if TYPE_CHECKING:
-    from .request import Request
+try:
+    import orjson as json
+except ImportError:
+    import json
 
 
 def jsonify(body="", status_code=200, headers=None):
     nheaders = headers or {}
-
     nheaders.update({"content-type": "application/json"})
-
     nbody = b""
-
     if body != "":
-        nbody = orjson.dumps(body)
-
+        nbody = json.dumps(body)
+        if not isinstance(nbody, bytes):
+            nbody = nbody.encode()
     return status_code, nheaders, nbody
 
 

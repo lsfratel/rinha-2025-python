@@ -11,6 +11,7 @@ from .keydb import keydb
 
 processors = (
     ("default", Config.DEFAULT_PAYMENT_URL),
+    ("default", Config.DEFAULT_PAYMENT_URL),
     ("fallback", Config.FALLBACK_PAYMENT_URL),
 )
 
@@ -27,7 +28,7 @@ def get_sesstion():
 
 
 def store_payment(payment: dict, processor: str, timestamp: float):
-    member = f"{processor}:{payment['amount']}:{payment['correlationId']}"
+    member = f"{processor}:{payment['amount']}:{payment['correlation_id']}"
     keydb.zadd("payments", {member: timestamp})
 
 
@@ -35,7 +36,8 @@ def process_payment(payment: dict, session: requests.Session):
     requested_at = datetime.now(UTC)
     timestamp = requested_at.timestamp()
     payload = {
-        **payment,
+        "correlationId": payment["correlation_id"],
+        "amount": payment["amount"],
         "requestedAt": requested_at.isoformat(),
     }
     for processor, url in processors:

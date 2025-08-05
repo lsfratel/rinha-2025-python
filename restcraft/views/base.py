@@ -5,6 +5,11 @@ from ..http import Request
 
 
 class View:
+    """"""
+
+    query_params_serializer = ...
+    body_serializer = ...
+
     @property
     def ctx(self):
         return self.__ctx__
@@ -13,27 +18,30 @@ class View:
     def ctx(self, ctx: dict[str, Any]):
         self.__ctx__ = ctx
 
-    def validated_data(
-        self, raise_=False
-    ) -> tuple[dict[str, Any], dict[str, list[str]]]:
-        req: Request = self.ctx["request"]
+    @property
+    def request(self) -> Request:
+        return self.ctx["request"]
 
-        if req.method in ("POST", "PUT", "PATCH"):
-            data = req.body
+    def get_data(self) -> dict[str, Any]:
+        if self.request.method in ("POST", "PUT", "PATCH"):
+            return self.request.body
         else:
-            data = req.query_params
+            return self.request.query_params
 
-        Serializer = getattr(self, f"{req.method.lower()}_serializer", None)
+    def validated_query_params(self, raise_=False):
+        if serializer := getattr(self, "query_params_serializer", None):
+            instance = serializer(data=self.request.query_params)
+            is_valid = instance.is_valid()
+            if raise_ and not is_valid:
+                raise ValidationError(instance.errors)
+            return instance.validated_data, instance.errors
+        return self.request.query_params, None
 
-        if Serializer is None:
-            raise Exception(f"Missing {req.method} serializer!.")
-
-        serializer_instance = Serializer(data=data)
-
-        if not serializer_instance.is_valid():
-            if raise_:
-                raise ValidationError(serializer_instance.errors)
-
-            return {}, serializer_instance.errors
-
-        return serializer_instance.validated_data, {}
+    def validated_body(self, raise_=False):
+        if serializer := getattr(self, "body_serializer", None):
+            instance = serializer(data=self.request.body)
+            is_valid = instance.is_valid()
+            if raise_ and not is_valid:
+                raise ValidationError(instance.errors)
+            return instance.validated_data, instance.errors
+        return self.request.body, None
